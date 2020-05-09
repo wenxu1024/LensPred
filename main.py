@@ -1,8 +1,11 @@
 import sys
-from PySide2.QtUiTools import *
-from PySide2.QtWidgets import *
-from PySide2.QtCore import *
-from PySide2.QtGui import *
+import sys
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5 import uic
+import pyqtgraph as pg
+from pyqtgraph import PlotWidget, plot
 
 from os import listdir
 from os.path import isfile, join
@@ -28,12 +31,6 @@ from keras.utils import plot_model
 from keras.callbacks import Callback
 
 import re
-
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-from matplotlib.backends.qt_compat import QtCore, QtWidgets, is_pyqt5
-from matplotlib import rcParams
-rcParams.update({'figure.autolayout': True})
 
 img_size = (300, 300, 3)
 Dvas = [55.04, 82.56, 110.08, 137.6, 206.4, 275.2, 344, 412.8, 481.6, 550.4, 619.2, 768.4, 960.5, 1152.6, 1344.7, 1536.8, 1728.9, 1921, 2305.2, 2689.4, 3073.6, 3457.8]
@@ -65,90 +62,61 @@ def create_model():
     return model
 
         
-class Form(QObject):
+class Form(QMainWindow):
     
-    def __init__(self, ui_file, parent=None):
-        super(Form, self).__init__(parent)
-        ui_file = QFile(ui_file)
-        ui_file.open(QFile.ReadOnly)
-        
-        loader = QUiLoader()
-        self.window = loader.load(ui_file)
-        ui_file.close()
-        
-        self.line1 = self.window.findChild(QLineEdit, 'trainpictpath')
-        self.line2 = self.window.findChild(QLineEdit, 'traincurvepath')
-        self.testimgholder = self.window.findChild(QLabel, 'testimgholder')
-        self.batchbar = self.window.findChild(QProgressBar, 'batchbar')
-        self.epochbar = self.window.findChild(QProgressBar, 'epochbar')
+    def __init__(self, ui_file, *args, **kwargs):
+        super(Form, self).__init__(*args, **kwargs)
+        self.ui = uic.loadUi(ui_file, self)
+    
         self.batchbar.setMinimum(0)
         self.batchbar.setMaximum(69)
         self.epochbar.setMinimum(0)
-        self.epochbar.setMaximum(19)
-        self.tecurvegrpbox = self.window.findChild(QGroupBox, 'tecurvegrpbox')
+        self.epochbar.setMaximum(19)        
         
-        
-        btn1 = self.window.findChild(QPushButton, 'trainpictbutt')
-        btn1.clicked.connect(self.trainpictbutt_clicked)
+        self.trainpictbutt.clicked.connect(self.trainpictbutt_clicked)
+        self.traincurvebutt.clicked.connect(self.traincurvebutt_clicked)
+        self.selecttestbutt.clicked.connect(self.selecttestbutt_clicked)
 
-        btn2 = self.window.findChild(QPushButton, 'traincurvebutt')
-        btn2.clicked.connect(self.traincurvebutt_clicked)
-
-        btn3 = self.window.findChild(QPushButton, 'selecttestbutt')
-        btn3.clicked.connect(self.selecttestbutt_clicked)
-
-        self.trainbutt = self.window.findChild(QPushButton, 'trainbutt')
         self.trainbutt.clicked.connect(self.trainbutt_clicked)
-
-        self.loadmodelbutt = self.window.findChild(QPushButton, 'loadMButt')
-        self.loadmodelbutt.clicked.connect(self.loadmodelbutt_clicked)
+        self.loadMButt.clicked.connect(self.loadmodelbutt_clicked)
         
-        self.predbutt = self.window.findChild(QPushButton, 'predbutt')
         self.predbutt.clicked.connect(self.predbutt_clicked)
-
+        
         self.threadpool = QThreadPool()
         print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
 
-        fig = Figure(figsize=(600,600), dpi=72, facecolor=(1,1,1), edgecolor=(0,0,0))
-        self.ax = fig.add_subplot(111)
-        self.ax.set_xlim(20,4000)
-        self.ax.set_ylim(0, 1.2)
-        self.ax.set_xscale('log')
-        self.ax.set_xlabel('Dva (nm)')
-        self.ax.set_ylabel('Lens Transmission Efficiency')
-        # generate the canvas to display the plot
-        canvas = FigureCanvas(fig)
-        layout = QtWidgets.QVBoxLayout(self.tecurvegrpbox)
-        layout.addWidget(canvas)
-
-        self.window.show()
+        self.tecurve.setLabel("left", text="Lens Transmission Efficiency")
+        self.tecurve.setLabel("bottom", text="Dva", units="nm")
+        self.tecurve.getViewBox().setXRange(np.log10(20), np.log10(4000))
+        self.tecurve.getViewBox().setYRange(0, 1.2)
+        self.tecurve.setLogMode(x=True,y=False)
+        self.tecurve.showGrid(x=True, y=True)
+        self.show()
 
 
     def trainpictbutt_clicked(self):
-        self.trainpictpath = str(QFileDialog.getExistingDirectory(self.window, "Select Directory"))
-        self.line1.setText(self.trainpictpath)
+        trainpictpath = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        self.trainpictpath.setText(trainpictpath)
 
     def traincurvebutt_clicked(self):
-        self.traincurvepath = str(QFileDialog.getExistingDirectory(self.window, "Select Directory"))
-        self.line2.setText(self.traincurvepath)
+        traincurvepath = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        self.traincurvepath.setText(traincurvepath)
 
     def selecttestbutt_clicked(self):
-        temp = QFileDialog.getOpenFileName(self.window, "Select A Picture", '', "Images (*.png *.xpm *.jpg *.bmp)")
+        temp = QFileDialog.getOpenFileName(self, "Select A Picture", '', "Images (*.png *.xpm *.jpg *.bmp)")
         self.testimgpath, _ = temp
         if self.testimgpath:
-            picture = QPixmap(self.testimgpath)
-            self.testimgholder.setPixmap(picture)
-            self.testimgholder.setScaledContents(True)
-        self.ax.clear()
-        self.ax.set_xlim(20,4000)
-        self.ax.set_ylim(0, 1.2)
-        self.ax.set_xscale('log')
-        self.ax.set_xlabel('Dva (nm)')
-        self.ax.set_ylabel('Lens Transmission Efficiency')
-        self.ax.figure.canvas.draw()
+            pixmap = QPixmap(self.testimgpath)
+            scene = QGraphicsScene()
+            scene.addPixmap(pixmap)
+            self.spotpic.setScene(scene)
+            self.spotpic.fitInView(scene.itemsBoundingRect(), Qt.KeepAspectRatio)
+        self.tecurve.clear()
 
     def trainbutt_clicked(self):
-        worker = Worker(self.trainpictpath, self.traincurvepath)
+        trainpictpath = self.trainpictpath.text()
+        traincurvepath = self.traincurvepath.text()
+        worker = Worker(trainpictpath, traincurvepath)
         #excecute
         worker.signals.batch_ended.connect(self.update_batch_progress_bar)
         worker.signals.epoch_ended.connect(self.update_epoch_progress_bar)
@@ -161,7 +129,7 @@ class Form(QObject):
         self.epochbar.setValue(epoch + 1)
 
     def loadmodelbutt_clicked(self):
-        temp = QFileDialog.getOpenFileName(self.window, "Select A Model .h5 File", '', "Model (*.h5)")
+        temp = QFileDialog.getOpenFileName(self, "Select A Model .h5 File", '', "Model (*.h5)")
         self.model_path , _ = temp
         if self.model_path:
             self.model = load_model(self.model_path)
@@ -190,16 +158,9 @@ class Form(QObject):
         #clear
 
     def update_pred_graph(self, tes):
-        self.ax.clear()
-        self.ax.set_xlim(20,4000)
-        self.ax.set_ylim(0, 1.2)
-        self.ax.set_xscale('log')
-        self.ax.set_xlabel('Dva (nm)')
-        self.ax.set_ylabel('Lens Transmission Efficiency')
-        # generate/update the plot
-        self.ax.plot(Dvas, tes)
-        #re-draw
-        self.ax.figure.canvas.draw()
+        self.tecurve.getViewBox().setXRange(np.log10(20), np.log10(4000))
+        self.tecurve.getViewBox().setYRange(0, 1.2)
+        self.tecurve.plot(Dvas, tes)
         #print(tes)
 
 
@@ -266,7 +227,7 @@ def data_generator(num_sample_per_batch, picpath, tepath):
                         n = 0
             
 class PredWorkerSignals(QObject):
-    predfinished = Signal(list)
+    predfinished = pyqtSignal(list)
     
 class PredWorker(QRunnable):
     def __init__(self, testimgpath):
@@ -274,7 +235,7 @@ class PredWorker(QRunnable):
         self.testimgpath = testimgpath
         self.predfinished = PredWorkerSignals()
 
-    @Slot() #QtCore.Slot
+    @pyqtSlot()
     def run(self):
         model = load_model('my_model.h5')
         testpath = self.testimgpath
@@ -312,8 +273,8 @@ class MyCustomCallback(Callback):
 
 class WorkerSignals(QObject):
 
-    batch_ended = Signal(int)
-    epoch_ended = Signal(int)
+    batch_ended = pyqtSignal(int)
+    epoch_ended = pyqtSignal(int)
                 
 class Worker(QRunnable):
     '''
@@ -326,7 +287,7 @@ class Worker(QRunnable):
         self.curvepath = curvepath
         self.signals = WorkerSignals()
         
-    @Slot() #QtCore.Slot
+    @pyqtSlot()
     def run(self):
         # create model and fit'
         model = create_model()

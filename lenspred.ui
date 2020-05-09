@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Lens Transmission Curve Predictor</string>
+   <string>Lens Transmission Curve Predictor (v1.0)</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QPushButton" name="trainpictbutt">
@@ -143,7 +143,7 @@
     <property name="title">
      <string>Lens Spot picture</string>
     </property>
-    <widget class="QLabel" name="testimgholder">
+    <widget class="QGraphicsView" name="spotpic">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -151,9 +151,6 @@
        <width>371</width>
        <height>211</height>
       </rect>
-     </property>
-     <property name="text">
-      <string/>
      </property>
     </widget>
    </widget>
@@ -195,6 +192,16 @@
     <property name="title">
      <string>Lens Transmission Curve</string>
     </property>
+    <widget class="PlotWidget" name="tecurve" native="true">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>20</y>
+       <width>301</width>
+       <height>211</height>
+      </rect>
+     </property>
+    </widget>
    </widget>
    <widget class="QPushButton" name="loadMButt">
     <property name="enabled">
@@ -225,6 +232,14 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PlotWidget</class>
+   <extends>QWidget</extends>
+   <header>pyqtgraph.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

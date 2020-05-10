@@ -130,8 +130,9 @@ class Form(QMainWindow):
         worker.signals.epoch_ended.connect(self.update_epoch_progress_bar)
         self.threadpool.start(worker)
 
-    def update_batch_progress_bar(self, batch):
+    def update_batch_progress_bar(self, batch, acc):
         self.batchbar.setValue(batch)
+        self.accLEdit.setText(str(round(acc,2)))
 
     def update_epoch_progress_bar(self, epoch):
         self.epochbar.setValue(epoch + 1)
@@ -273,7 +274,7 @@ class MyCustomCallback(Callback):
     
     def on_train_batch_end(self, batch, logs=None):
         #print(batch)
-        self.worker.signals.batch_ended.emit(batch)
+        self.worker.signals.batch_ended.emit(batch, logs['acc'])
         
     def on_epoch_end(self, epoch, logs=None):
         #print(epoch)
@@ -281,7 +282,7 @@ class MyCustomCallback(Callback):
 
 class WorkerSignals(QObject):
 
-    batch_ended = pyqtSignal(int)
+    batch_ended = pyqtSignal(int, float)
     epoch_ended = pyqtSignal(int)
                 
 class Worker(QRunnable):

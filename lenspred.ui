@@ -43,9 +43,9 @@
    <widget class="QLineEdit" name="trainpictpath">
     <property name="geometry">
      <rect>
-      <x>420</x>
+      <x>430</x>
       <y>20</y>
-      <width>341</width>
+      <width>331</width>
       <height>21</height>
      </rect>
     </property>
@@ -56,9 +56,9 @@
    <widget class="QLineEdit" name="traincurvepath">
     <property name="geometry">
      <rect>
-      <x>420</x>
+      <x>430</x>
       <y>50</y>
-      <width>341</width>
+      <width>331</width>
       <height>21</height>
      </rect>
     </property>
@@ -79,9 +79,9 @@
    <widget class="QProgressBar" name="epochbar">
     <property name="geometry">
      <rect>
-      <x>420</x>
+      <x>430</x>
       <y>110</y>
-      <width>351</width>
+      <width>341</width>
       <height>21</height>
      </rect>
     </property>
@@ -92,9 +92,9 @@
    <widget class="QProgressBar" name="batchbar">
     <property name="geometry">
      <rect>
-      <x>420</x>
+      <x>430</x>
       <y>80</y>
-      <width>351</width>
+      <width>341</width>
       <height>21</height>
      </rect>
     </property>
@@ -105,8 +105,8 @@
    <widget class="QPushButton" name="selecttestbutt">
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>160</y>
+      <x>110</x>
+      <y>170</y>
       <width>171</width>
       <height>23</height>
      </rect>
@@ -121,8 +121,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>420</x>
-      <y>160</y>
+      <x>430</x>
+      <y>170</y>
       <width>101</width>
       <height>23</height>
      </rect>
@@ -217,6 +217,35 @@
     </property>
     <property name="text">
      <string>load pre-trained model</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="accLbl">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>140</y>
+      <width>47</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Accuracy</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="accLEdit">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>140</y>
+      <width>113</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>false</bool>
     </property>
    </widget>
   </widget>

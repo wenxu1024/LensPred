@@ -143,7 +143,7 @@
     <property name="title">
      <string>Lens Spot picture</string>
     </property>
-    <widget class="QGraphicsView" name="spotpic">
+    <widget class="ImageView" name="testimg" native="true">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -229,12 +229,24 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>About</string>
+    </property>
+   </widget>
+   <addaction name="menuAbout"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <customwidgets>
   <customwidget>
    <class>PlotWidget</class>
+   <extends>QWidget</extends>
+   <header>pyqtgraph.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ImageView</class>
    <extends>QWidget</extends>
    <header>pyqtgraph.h</header>
    <container>1</container>

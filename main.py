@@ -91,6 +91,10 @@ class Form(QMainWindow):
         self.tecurve.getViewBox().setYRange(0, 1.2)
         self.tecurve.setLogMode(x=True,y=False)
         self.tecurve.showGrid(x=True, y=True)
+
+        self.testimg.ui.histogram.hide()
+        self.testimg.ui.roiBtn.hide()
+        self.testimg.ui.menuBtn.hide()
         self.show()
 
 
@@ -106,12 +110,16 @@ class Form(QMainWindow):
         temp = QFileDialog.getOpenFileName(self, "Select A Picture", '', "Images (*.png *.xpm *.jpg *.bmp)")
         self.testimgpath, _ = temp
         if self.testimgpath:
-            pixmap = QPixmap(self.testimgpath)
-            scene = QGraphicsScene()
-            scene.addPixmap(pixmap)
-            self.spotpic.setScene(scene)
-            self.spotpic.fitInView(scene.itemsBoundingRect(), Qt.KeepAspectRatio)
-        self.tecurve.clear()
+            image = Image.open(self.testimgpath)
+            imgdata = np.asarray(image).transpose([1,0,2])
+            self.testimg.ui.histogram.show()
+            self.testimg.ui.roiBtn.show()
+            self.testimg.ui.menuBtn.show()
+            self.testimg.setImage(imgdata)
+            self.testimg.ui.histogram.hide()
+            self.testimg.ui.roiBtn.hide()
+            self.testimg.ui.menuBtn.hide()
+            self.tecurve.clear()
 
     def trainbutt_clicked(self):
         trainpictpath = self.trainpictpath.text()
@@ -160,7 +168,7 @@ class Form(QMainWindow):
     def update_pred_graph(self, tes):
         self.tecurve.getViewBox().setXRange(np.log10(20), np.log10(4000))
         self.tecurve.getViewBox().setYRange(0, 1.2)
-        self.tecurve.plot(Dvas, tes)
+        self.tecurve.plot(Dvas, tes, symbol='o')
         #print(tes)
 
 
